@@ -23,9 +23,9 @@ const Form = ({
       <p className="mt-1 text-center text-gray-500 dark:text-gray-400">{isSignInPage ? 'Sign in to get explored' : 'Sign up to get started'}</p>
 
       <form onSubmit={() => console.log('Submitted')}>
-        { !isSignInPage && <Input type="text" label="Full Name" name="name" placeholder="Enter your full name" value={data.fullName} onChange={(e) => setData({...data, fullName: e.target.value})}/>}
-        <Input type="email" label="Email" name="email" placeholder="Enter your email" value={data.email}  onChange={(e) => setData({...data, email: e.target.value})}/>
-        <Input type="password" label="Password" name="password" placeholder="Enter your password" value={data.password}  onChange={(e) => setData({...data, password: e.target.value})}/>
+        { !isSignInPage && <Input type="text" label="Full Name" name="name" placeholder="Enter your full name" inputClassName="rounded-lg" value={data.fullName} onChange={(e) => setData({...data, fullName: e.target.value})}/>}
+        <Input type="email" label="Email" name="email" placeholder="Enter your email" inputClassName="rounded-lg" value={data.email}  onChange={(e) => setData({...data, email: e.target.value})}/>
+        <Input type="password" label="Password" name="password" placeholder="Enter your password" inputClassName="rounded-lg" value={data.password}  onChange={(e) => setData({...data, password: e.target.value})}/>
         <div className="flex items-center justify-between mt-4">
           <a href="#" className="text-sm text-gray-600 dark:text-gray-200 hover:text-gray-500">Forgot Password?</a>
 
