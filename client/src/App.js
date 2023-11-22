@@ -39,12 +39,13 @@ function App() {
       <Route
         path="/user/sign_up"
         element={ <ProtectedRoute>
-          <Form isSignInPage={true} />
+          <Form isSignInPage={false} />
         </ProtectedRoute>
       }
       />
     </Routes>
   );
+ 
 }
 
 export default App;
