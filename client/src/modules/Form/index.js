@@ -1,7 +1,8 @@
 // Form.js
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Input from '../../components/input/Input';
+
 
 const Form = ({ isSignInPage }) => {
   const [data, setData] = useState({
@@ -11,6 +12,7 @@ const Form = ({ isSignInPage }) => {
     email: '',
     password: '',
   });
+  const navigate = useNavigate(); // Get the navigate function
 
   const toggleSignInPage = () => {
     setData({
@@ -23,6 +25,27 @@ const Form = ({ isSignInPage }) => {
   };
 
   console.log('data :>>', data);
+  const handleSubmit = async(e) => {
+    console.log ('data :>>', data);
+    e.preventDefault();
+    const res = await fetch(`http://localhost:8000/api/${isSignInPage ? 'login' : 'register'}`, {
+        method: 'POST',
+        headers:{ 
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    if(res.status ===400){
+      alert('Invalid credentials')
+    }else{   
+      const resdata = await res.json()
+      if(resdata.token){
+        localStorage.setItem('user:token', resdata.token)
+        localStorage.setItem('user:detail', JSON.stringify(resdata.user))
+        navigate('/')
+      }
+    }
+  }
 
   return (
     <div className='flex items-center justify-center h-screen'>
@@ -39,10 +62,7 @@ const Form = ({ isSignInPage }) => {
           </p>
 
           <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              console.log('Submitted', data);
-            }}
+            onSubmit={(e) => handleSubmit(e)}
           >
             {!isSignInPage && (
               <Input

@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useState } from 'react'; // Import useState separately if needed
 import Avatar from '../../assets/avatar.svg';
 import Input from '../../components/input/Input';
+
+
 
 const Dashboard = () => {
   const contacts = [
@@ -35,7 +38,27 @@ const Dashboard = () => {
       img: Avatar
     },
   ];
+   useEffect(() =>{
+    const loggedInUser = JSON.parse(localStorage.getItem('user:detail'))
+    const fetchConversations = async() => {
+      const res = await fetch(`http://localhost:8000/api/conversations/${loggedInUser?.id}`, {
+        method: 'GET',
+        headers:{
+          'Content-Type': 'application/json',
+          
+        },
+        
+      });
 
+      const resdata = await res.json()
+      setConversations(resdata);
+    }
+    fetchConversations();
+   }, [])
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user:detail')))
+  const [conversation, setConversations] = useState([])
+  console.log('user :>>', user);
+  console.log('conversations :>> ', conversation);
   return (
     <div className='w-screen flex'>
       <div className='w-[25%]  h-screen bg-gray-100'>
@@ -44,7 +67,7 @@ const Dashboard = () => {
             <img src={Avatar} width={50} height={50} className=' rounded-full' />
           </div>
           <div className='ml-8'>
-            <h3 className='text-2xl'>Tutorials Dev</h3>
+            <h3 className='text-2xl'>{user?.fullName}</h3>
             <p className='text-lg font-light'>My Account</p>
           </div>
         </div>
@@ -52,7 +75,7 @@ const Dashboard = () => {
         <div className='mt-10'>
           <div className='text-blue-500 text-lg px-20'>Messages</div>
           <div>
-            {contacts.map(({ name, status, img }) => (
+            {conversation.map(({ name, status, img }) => (
               <div className='cursor-pointer flex items-center' key={name}>
                 <div className='flex items-center py-8 border-b border-b-gray-300 px-20'>
                   <div><img src={img} width={50} height={50} className=' rounded-full' /></div>

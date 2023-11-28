@@ -2,13 +2,13 @@ import Dashboard from './modules/Dashboard/Dashboard';
 import Form from './modules/Form/index';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
-const ProtectedRoute = ({ children }) => {
-  const isLoggedIn = localStorage.getItem('user:token') !== null || true;
+const ProtectedRoute = ({ children, auth=false }) => {
+  const isLoggedIn = localStorage.getItem('user:token') !== null || false;
 
-  if (!isLoggedIn) {
+  if (!isLoggedIn && auth) {
     // If not logged in, redirect to the sign-in page
     return <Navigate to="/user/sign_in" />;
-  }else if(isLoggedIn && ['/sign_in', '/sign_up'].includes(window.location.pathname)){
+  }else if(isLoggedIn && ['/user/sign_in', '/user/sign_up'].includes(window.location.pathname)){
     console.log('Object :>>');
     return <Navigate to={'/'} />
   }
@@ -23,7 +23,7 @@ function App() {
       <Route
         path="/"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute auth={true}>
             <Dashboard />
           </ProtectedRoute>
         }

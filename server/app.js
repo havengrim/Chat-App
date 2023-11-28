@@ -1,6 +1,7 @@
 const express = require('express');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const cors = require('cors');
 
 // Connect db
 require('./db/connection');
@@ -14,6 +15,7 @@ const Messages = require('./models/Messages');
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cors());
 
 const port = process.env.PORT || 8000;
 
@@ -83,10 +85,9 @@ app.post('/api/login', async (req, res, next) => {
                 $set: { token }
               })
               user.save();
-              next()
+              return res.status(200).json({ user: { id:user._id, email: user.email, fullName: user.fullName}, token: token })
             })
-
-            res.status(200).json({ user: { email: user.email, fullName: user.fullName}, token: user.token })
+            console.log(user.token, 'token')
         }
       }
     }
@@ -106,7 +107,7 @@ app.post('/api/conversation', async (req, res) =>{
   }
 })
 
-app.get('/api/conversation/:userId', async (req, res) =>{
+app.get('/api/conversations/:userId', async (req, res) =>{
   try{
     const userId = req.params.userId;
     const conversations = await Conversation.find({ members: { $in: [userId]} });
