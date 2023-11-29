@@ -75,19 +75,22 @@ const Dashboard = () => {
         <div className='mt-10'>
           <div className='text-blue-500 text-lg px-20'>Messages</div>
           <div>
-            {conversation.map(({ conversationId, user, img }) => {
-              return(
-                <div className='cursor-pointer flex items-center'>
-                <div className='flex items-center py-8 border-b border-b-gray-300 px-20'>
-                  <div><img src={img} width={50} height={50} className=' rounded-full' /></div>
-                  <div className='ml-6'>
-                    <h3 className='text-lg font-semibold'>{user?.fullName}</h3>
-                    <p className='text-sm font-light text-gray-600'>{user?.email}</p>
+            {
+              conversation.length > 0 ?
+                conversation.map(({ conversationId, user, img }) => {
+                  return(
+                    <div className='flex items-center py-8 border-b border-b-gray-300 px-20'>
+                    <div className='cursor-pointer flex items-center'>
+                      <div><img src={img} width={50} height={50} className=' rounded-full' /></div>
+                      <div className='ml-6'>
+                        <h3 className='text-lg font-semibold'>{user?.fullName}</h3>
+                        <p className='text-sm font-light text-gray-600'>{user?.email}</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              )
-              })}
+                  )
+              }) : <div className='text-center text-lg font-semibold mt-24'>No conversation </div>
+            }
           </div>
         </div>
       </div>
