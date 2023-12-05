@@ -100,7 +100,6 @@ const Dashboard = () => {
             {
               conversations.length > 0 ?
                 conversations.map(({ conversationId, user }) => {
-                
                   return(
                     <div className='flex items-center py-8 border-b border-b-gray-300 px-20'>
                     <div className='cursor-pointer flex items-center' onClick={() => fetchMessaages(conversationId, user)}>
@@ -142,7 +141,7 @@ const Dashboard = () => {
               messages.messages?.length > 0 ?
               messages.messages.map(({ message, user: { id } = {} }) =>{
                   return (
-                    <div className={`max-w-[40%] rounded-b-xl p-4 text-white mb-6 ${id === user?.id ? ' bg-blue-600 rounded-tl-xl ml-auto': 'bg-gray-100 rounded-tr-xl text-black'} `}>
+                    <div className={`max-w-[40%] rounded-b-xl p-4 mb-6 ${id === user?.id ? ' bg-blue-600 text-white rounded-tl-xl ml-auto': 'bg-gray-100 rounded-tr-xl text-black'} `}>
                           {message}
                         </div>
                   )

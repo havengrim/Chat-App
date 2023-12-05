@@ -123,25 +123,30 @@ app.get('/api/conversations/:userId', async (req, res) => {
 })
 
 app.post('/api/message', async (req, res) => {
-  try{
+  try {
     const { conversationId, senderId, message, receiverId = '' } = req.body;
-    if(!senderId || !message) return res.status(400).send('Please fill all required fields')
-    if(!conversationId && receiverId){
+
+    if (!senderId || !message) {
+      return res.status(400).send('Please fill all required fields');
+    }
+
+    if (!conversationId && receiverId) {
       const newConversation = new Conversations({ members: [senderId, receiverId] });
       await newConversation.save();
-      const newMessage = new Messages({ conversationId: newConversation._id, senderId, message});
+      const newMessage = new Messages({ conversationId: newConversation._id, senderId, message });
       await newMessage.save();
       return res.status(200).send('Message sent successfully');
-    }else{
-      return res.status(400).send('Please fill all required fields')
+    } else {
+      const newMessage = new Messages({ conversationId, senderId, message });
+      await newMessage.save();
+      return res.status(200).send('Message sent successfully');
     }
-    const newMessage = new Messages({ conversationId, senderId, message});
-    await newMessage.save();
-    res.status(200).send('Message sent successfully');
-  } catch (error){
-    console.log(error, 'Error')
+  } catch (error) {
+    console.log(error, 'Error');
+    res.status(500).send('Internal Server Error'); // Handle the error appropriately
   }
-})
+});
+
 
 
 
