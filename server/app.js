@@ -39,15 +39,12 @@ app.post('/api/register', async (req, res) => {
         const newUser = new Users({ fullName, email });
   
         bcryptjs.hash(password, 10, (err, hashedPassword) => {
-          if (err) {
-            throw err; // Handle the error, log it, or send an appropriate response
-          }
-    
           newUser.set('password', hashedPassword);
           newUser.save();
-    
-          return res.status(200).send('User registered successfully');
+          next();
+          
         });
+          return res.status(200).send('User registered successfully');
       }
       
     }
@@ -130,7 +127,7 @@ app.post('/api/message', async (req, res) => {
       return res.status(400).send('Please fill all required fields');
     }
 
-    if (!conversationId && receiverId) {
+    if (conversationId === 'new' && receiverId) {
       const newConversation = new Conversations({ members: [senderId, receiverId] });
       await newConversation.save();
       const newMessage = new Messages({ conversationId: newConversation._id, senderId, message });
@@ -149,28 +146,70 @@ app.post('/api/message', async (req, res) => {
 
 
 
-
 app.get('/api/message/:conversationId', async (req, res) => {
-  try{
-    const conversationId = req.params.conversationId;
-    if(conversationId === 'new') return res.status(200).json([])
-    const messages = await Messages.find({ conversationId });
-  const messageUserData = Promise.all(messages.map(async (message) => {
-      const user = await Users.findById(message.senderId);
-      return {user: { id: user._id, email: user.email, fullName: user.fullName}, message: message.message}
-    }));
-    res.status(200).json(await messageUserData);
-  }
-  catch(error){
-    console.log('Error', error)
-  }
-})
+  try {
+    const checkMessages = async (conversationId) => { // Make the function asynchronous
+      const messages = await Messages.find({ conversationId });
+      const messageUserData = Promise.all(messages.map(async (message) => {
+        const user = await Users.findById(message.senderId);
+        return { user: { id: user._id, email: user.email, fullName: user.fullName }, message: message.message };
+      }));
+      return messageUserData; // Return the Promise for use later
+    }
 
-app.get('/api/users', async(req,res) => {
+    const conversationId = req.params.conversationId;
+
+    if (conversationId === 'new') {
+      const checkConversation = await Conversations.find({ members: { $in: [req.body.senderId, req.body.receiverId] } });
+
+      if (checkConversation.length > 0) {
+        return res.status(200).json({ conversationId: checkConversation[0]._id });
+      }
+
+      return res.status(200).json([]);
+    }
+
+    const messages = await checkMessages(conversationId); // Call the async function
+    res.status(200).json(messages);
+  } catch (error) {
+    console.log('Error', error);
+    res.status(500).json({ error: 'Internal Server Error' }); // Handle errors with an appropriate response
+  }
+});
+
+// app.get('/api/message/:conversationId', async (req, res) => {
+//   try{
+//       const checkMessages = (conversationId) => {
+//     const messages = await Messages.find({ conversationId });
+//       const messageUserData = Promise.all(messages.map(async (message) => {
+//         const user = await Users.findById(message.senderId);
+//         return {user: {id: user._id, email: user.email, fullName: user.fullName }, message: message.message }
+//       }));
+//     }
+//     const conversationId = req.params.conversationId;
+//     if(conversationId === 'new'){
+//       const checkConversation = await Conversations.find({ members: { $in: [req.body.senderId, req.body.receiverId]}});
+//       if(checkConversation.length > 0) return res.status(200).json({ conversationId:checkConversation[0]._id})
+//       return res.status(200).json([])
+//     }
+//     const messages = await Messages.find({ conversationId });
+//   const messageUserData = Promise.all(messages.map(async (message) => {
+//       const user = await Users.findById(message.senderId);
+//       return {user: { id: user._id, email: user.email, fullName: user.fullName}, message: message.message}
+//     }));
+//     res.status(200).json(await messageUserData);
+//   }
+//   catch(error){
+//     console.log('Error', error)
+//   }
+// })
+
+app.get('/api/users:userId', async(req,res) => {
   try{
-    const users = await Users.find();
+    const userId = req.params.userId;
+    const users = await Users.find({ _id: { $ne: userId}});
     const usersData = Promise.all(users.map(async (user) => {
-      return {user: { email: user.email, fullName: user.fullName}, userId: user._id}
+      return {user: { email: user.email, fullName: user.fullName, receiverId: user._id}}
     }))
     res.status(200).json(await usersData)
   }catch(error) {

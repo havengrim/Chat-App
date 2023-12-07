@@ -19,9 +19,11 @@ const Dashboard = () => {
   const [conversations, setConversations] = useState([])
   const [messages, setMessages] = useState({})
   const [message, setMessage] = useState('')
+  const [users, setUsers] = useState({})
 
   console.log('user :>>', user);
   console.log('conversations :>>', conversations);
+  console.log('users :>>', users);
 
    useEffect(() =>{
     const loggedInUser = JSON.parse(localStorage.getItem('user:detail'))
@@ -42,9 +44,26 @@ const Dashboard = () => {
     fetchConversations();
    }, [])
 
+   useEffect(() =>{
+    const fetchUsers = async() => {
+      const res = await fetch(`http://localhost:8000/api/users/${user?.id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      const resData = await res.json()
+      setUsers(resData)
+    }
+    fetchUsers()
+   }, [])
+
   const fetchMessaages = async(conversationId, user) => {
     const res = await fetch(`http://localhost:8000/api/message/${conversationId}`, {
       method: 'GET',
+      ... (conversationId === 'new' && {
+        body: JSON.stringify({ senderId: user?.id, receiverId: messages?.receiverId})
+      }),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -172,8 +191,26 @@ const Dashboard = () => {
         }
       </div>
      
-      <div className='w-[25%]  h-screen bg-gray-50'>
-        
+      <div className='w-[25%]  h-screen bg-gray-50 px-8 py-16'>
+        <div className='text-blue-500 text-lg'>People</div>
+        <div>
+            {
+              users.length > 0 ?
+                users.map(({ usersId, user }) => {
+                  return(
+                    <div className='flex items-center py-8 border-b border-b-gray-300 px-20'>
+                    <div className='cursor-pointer flex items-center' onClick={() => fetchMessaages('new', user)}>
+                      <div><img src={Img1} width={60} height={60} className=' rounded-full' /></div>
+                      <div className='ml-6'>
+                        <h3 className='text-lg font-semibold'>{user?.fullName}</h3>
+                        <p className='text-sm font-light text-gray-600'>{user?.email}</p>
+                      </div>
+                    </div>
+                  </div>
+                  )
+              }) : <div className='text-center text-lg font-semibold mt-24'>No Conversations</div>
+            }
+          </div>
       </div>
     </div>
   );
